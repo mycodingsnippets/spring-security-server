@@ -1,0 +1,46 @@
+When visiting a website, if we are a new user, we need to signup. We can signup using google or facebook account. When doing so,
+we are authorising Google or facebook to allow Quora to access our profile info. This authorization is done using OAuth2.
+
+Resource Owner: User who wants to signup on Quora
+Client: Quora
+Resource Server: Gmail or FB
+Authorization Server: Verifies identity of User then issues access token to application to access protected user accounts on resource server.
+
+Working - The client (Quora) first register with authorizaton server associated with resource server. This is one time task.
+Once registered the registration remains valid, unless client application registration is revoked. At registration, client app
+is assigned client id and a client secret by the authorization server. It is unique to that client.
+When user comes to client and authorize access to its profile (Resource Server), the Authorization Server grants access token
+(authorization code) to client for future access of resource along with a refresh token
+
+Our Development - Since our client and resource server are from same company(resource owner), we will assume that client is already registered
+with resource server and has been assigned a unique client id and secret key.
+We have a unique client id - 'client' and secret key - 'secret'.
+
+RESOURCE SERVER:
+    com.dotcomengineer.security.config.ResourceServer
+    com.dotcomengineer.employee.controllers.EmployeeController
+    com.dotcomengineer.security.config.EmployeeSecurityConfiguration
+
+AUTHORIZATION SERVER:
+    com.dotcomengineer.security.config.AuthorizationServerConfig
+    #Client is authorized at uri /oauth/authorize
+
+IN OUR CASE RESOURCE SERVER AND AUTHORIZATION SERVER ARE SAME.
+USUALLY RESOURCE SERVER AND AUTHORIZATION SERVER ARE ON ONE SERVER AND CLIENT ON OTHER FOR SIMPLE DEVELOPMENT.
+ALSO NOTE THERE IS NO SPECIAL CONFIG REQUIRED FOR RESOURCE SERVER AND AUTHORIZATION SERVER ANYWHERE ONCE AUTH SERVER HAS BEEN
+CREATED ON RESOURCE SERVER AND TOLD THAT CLIENT IS ALREADY REGISTERED WITH GIVEN IDS AND SECRETS.
+RESOURCE SERVER WILL PROTECT ITS RESOURCES BASED ON CRED PROVIDED BY CLIENT ALONE ie AUTH SERVER WONT ACT NOW
+
+CLIENT (Usually on Separate Server)
+    #To authorization uri, client should send:
+        #response_type => REQUIRED and Value must be set to code
+        #client_id => REQUIRED and Value is one obtained during registration (our case client)
+        #redirect_uri => OPTIONAL and Value is where Authorization Server will redirect to after successful authorization (NOT NEEDED IN LATEST VERSION)
+        #scope => OPTIONAL and Value can be Read or Write
+    #Once we send request to authorization end point, we get an Authorization code from resource server at redirect uri endpoint.
+    #We can use that code to get access token from /oauth/token. So changes are required at client end.
+    com.dotcomengineer.employee.controllers.EmployeeController (in springbootclient project)
+
+Generally for authorization_code grant type, we dont implement Authorization Server and Resource Server, We use Google, Git for it.
+We act as client. So as client, we make request to authorize using client id and secret and specify redirect uri on client. On that uri,
+we get a authorization code which we use to get access_token. That access token can be used to retrieve data from these services.

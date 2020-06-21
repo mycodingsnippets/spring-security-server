@@ -1,0 +1,7 @@
+mvn clean install                                       => Download/Compile maven dependencies in .m2 directory under user folder and build the project
+mvn spring-boot:run                                     => Run Spring boot App without packaging
+mvn clean package                                       => package into a jar file to run
+java -jar target/<name_of_project>.jar                  => run the jar
+
+netstat -ano | findstr :8090
+taskkill /PID PID /F
